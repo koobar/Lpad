@@ -1,7 +1,6 @@
 ﻿using LibLpad.Streams;
 using Lpad.Wav;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -73,11 +72,7 @@ namespace Lpad
             {
                 // ファイルを読み込んでデコード
                 var reader = new LpadStreamReader(File.OpenRead(srcFilePath));
-                var sw = new Stopwatch();
-                sw.Start();
                 var decoded = reader.ReadSamples();
-                sw.Stop();
-                Console.WriteLine(sw.Elapsed.TotalMilliseconds.ToString() + "ミリ秒でデコードしました。");
 
                 // デコードして得られたPCMサンプルをWAVファイルに保存する。
                 var wav_encoder = new WavEncoder(destFilePath, (uint)reader.SampleRate, 16, (uint)reader.NumChannels);
