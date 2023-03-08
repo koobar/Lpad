@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 namespace Lpad
 {
@@ -9,13 +8,13 @@ namespace Lpad
 Encoder/Decoder command-line tool.
 Copyright (c) 2023 koobar.";
         private const string MESSAGE_HELP = "[Command-line options]\n" +
-            "-enc(-e)\t:\tEncode mode. Convert WAV (linear pcm) audio file to LPAD.\n" +
-            "-bn(n = 2...9)\t:\tSet bits per sample. (ex: if you use -b3 option, encoder use 3 bits per sample.)\n" +
-            "-bs\t:\tSet block size. (ex: if you use -bs=1024 option, use blocks of length 1024 samples.)\n" +
-            "-dec(-d)\t:\tDecode mode. Convert LPAD format to WAV (16-bit linear pcm).\n" +
-            "-play(-p)\t:\tPlay mode. Play output audio file after decode.\n" +
-            "-help(-h)\t:\tHelp mode. Show command-line option descriptions. (now mode)\n" +
-            "-nologo\t\t:\tIf you use this option, Don't show application logo.";
+            "-e\t:\tEncode mode. Convert WAV (linear pcm) audio file to LPAD.\n" +
+            "-b\t:\tSet bits per sample. (ex: if you use '--b 3' option, encoder use 3 bits per sample.)\n" +
+            "-bs\t:\tSet block size. (ex: if you use '--bs 1024' option, use blocks of length 1024 samples.)\n" +
+            "-d\t:\tDecode mode. Convert LPAD format to WAV (16-bit linear pcm).\n" +
+            "-p\t:\tPlay mode. Play output audio file after decode.\n" +
+            "-h\t:\tHelp mode. Show command-line option descriptions. (now mode)\n" +
+            "-nologo\t:\tIf you use this option, Don't show application logo.";
 
         /// <summary>
         /// コマンドラインモードを開始する。
@@ -98,92 +97,96 @@ Copyright (c) 2023 koobar.";
             srcFilePath = null;
             destFilePath = null;
 
-            foreach(string argument in args)
-            {
-                if (argument.StartsWith("-"))
-                {
-                    string[] tmp = argument.Split('=');
-                    string argName = tmp[0].ToLower();
+            int offset = 0;
 
-                    switch (argName)
+            while(offset < args.Length)
+            {
+                string input = args[offset++];
+                int numArguments = GetNumberOfArguments(input);
+
+                if (numArguments >= 0)
+                {
+                    string[] optArgs = new string[numArguments];
+
+                    // コマンドライン引数の引数を取得。
+                    for (int i = 0; i < numArguments; i++)
                     {
-                        case "-out":
-                        case "-o":
-                            destFilePath = tmp[1];
-                            break;
-                        case "-help":
-                        case "-h":
+                        optArgs[i] = args[offset++];
+                    }
+
+                    switch (input.Replace("-", string.Empty))
+                    {
+                        case "help":
+                        case "h":
                             isHelpMode = true;
                             isEncodeMode = false;
                             isDecodeMode = false;
                             isPlayMode = false;
                             break;
-                        case "-encode":
-                        case "-enc":
-                        case "-e":
+                        case "encode":
+                        case "enc":
+                        case "e":
                             isHelpMode = false;
                             isEncodeMode = true;
                             isDecodeMode = false;
                             isPlayMode = false;
                             break;
-                        case "-decode":
-                        case "-dec":
-                        case "-d":
+                        case "decode":
+                        case "dec":
+                        case "d":
                             isHelpMode = false;
                             isEncodeMode = false;
                             isDecodeMode = true;
                             isPlayMode = false;
                             break;
-                        case "-b2":
-                            bitsPerSample = 2;
+                        case "bits":
+                        case "b":
+                            bitsPerSample = int.Parse(optArgs[0]);
                             break;
-                        case "-b3":
-                            bitsPerSample = 3;
+                        case "blocksize":
+                        case "bs":
+                            blockSize = int.Parse(optArgs[0]);
                             break;
-                        case "-b4":
-                            bitsPerSample = 4;
-                            break;
-                        case "-b5":
-                            bitsPerSample = 5;
-                            break;
-                        case "-b6":
-                            bitsPerSample = 6;
-                            break;
-                        case "-b7":
-                            bitsPerSample = 7;
-                            break;
-                        case "-b8":
-                            bitsPerSample = 8;
-                            break;
-                        case "-b9":
-                            bitsPerSample = 9;
-                            break;
-                        case "-blocksize":
-                        case "-bs":
-                            blockSize = int.Parse(tmp[1]);
-                            break;
-                        case "-play":
-                        case "-p":
+                        case "play":
+                        case "p":
                             isPlayMode = true;
                             break;
-                        case "-nologo":
+                        case "nologo":
                             noLogo = true;
                             break;
                     }
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(srcFilePath))
+                    if (srcFilePath == null)
                     {
-                        srcFilePath = argument;
-                        destFilePath = Path.ChangeExtension(srcFilePath, ".lpad");
+                        srcFilePath = input;
                     }
-                    else
+                    else if (destFilePath == null)
                     {
-                        destFilePath = argument;
+                        destFilePath = input;
                     }
                 }
             }
+        }
+
+        private static int GetNumberOfArguments(string input)
+        {
+            int result = -1;
+
+            foreach(char word in input)
+            {
+                if (word == '-')
+                {
+                    result++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return result;
         }
     }
 }

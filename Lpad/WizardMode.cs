@@ -11,7 +11,7 @@ Encoder/Decoder command-line tool.
 Copyright (c) 2023 koobar.
 ================================================================================
 If you need any help, Please select operation number '4' and type '-h'.";
-        private const string MESSAGE_SELECT_MODE = @"Please select the operation you want to perform.
+        private const string MESSAGE_SELECT_MODE = @"Please select an operation number.
 (1) Encode
 (2) Decode
 (3) Play LPAD encoded file.
