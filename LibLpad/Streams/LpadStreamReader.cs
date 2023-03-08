@@ -27,6 +27,11 @@ namespace LibLpad.Streams
         #region プロパティ
 
         /// <summary>
+        /// フォーマットのバージョン
+        /// </summary>
+        public byte FormatVersion { private set; get; }
+
+        /// <summary>
         /// サンプルレート
         /// </summary>
         public int SampleRate { private set; get; }
@@ -72,6 +77,7 @@ namespace LibLpad.Streams
         /// </summary>
         private void ReadHeader()
         {
+            this.FormatVersion = this.InputStream.ReadByte();
             this.SampleRate = this.InputStream.ReadInt32();
             this.NumChannels = this.InputStream.ReadByte();
             this.BitsPerSample = this.InputStream.ReadByte();

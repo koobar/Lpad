@@ -5,6 +5,9 @@ namespace LibLpad.Streams
 {
     public class LpadStreamWriter
     {
+        // 非公開定数
+        private const byte LPAD_FORMAT_VERSION = 0x00;
+
         // 非公開フィールド
         private readonly BinaryWriter OutputStream;
 
@@ -55,6 +58,9 @@ namespace LibLpad.Streams
         /// </summary>
         private void WriteHeader()
         {
+            // フォーマットのバージョン
+            this.OutputStream.Write(LPAD_FORMAT_VERSION);
+
             // サンプルレート
             this.OutputStream.Write(this.SampleRate);
 
