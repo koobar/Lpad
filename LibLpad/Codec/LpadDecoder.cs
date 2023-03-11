@@ -58,19 +58,19 @@ namespace LibLpad.Codec
         }
 
         /// <summary>
-        /// 指定された予測器、テーブル、インデックスを基に、指定された量子化予測残差を逆量子化し、
-        /// 予測器から予測したサンプルに予測残差を加算してサンプルを求める。
+        /// 指定された予測器、テーブル、インデックスを基に、指定された量子化予測残差を逆量子化し、予測器から予測したサンプルに予測残差を加算してサンプルを求める。
         /// </summary>
-        /// <param name="lmsFilter"></param>
-        /// <param name="indexTable">インデックス変化量テーブル</param>
-        /// <param name="scale"></param>
-        /// <param name="currentStepIndex"></param>
-        /// <param name="quantizedResidual"></param>
-        /// <returns>デコードされたサンプル(16ビットPCM)</returns>
-        private short DecodeSample(Lms lmsFilter, int[] indexTable, ref int currentStepIndex, int scale, int quantizedResidual)
+        /// <param name="lmsFilter">LMSフィルタ</param>
+        /// <param name="stepSizeTable">ステップサイズテーブル</param>
+        /// <param name="indexTable">インデックス調整テーブル</param>
+        /// <param name="currentStepIndex">現在のステップサイズ参照用インデックス</param>
+        /// <param name="scale">スケール</param>
+        /// <param name="quantizedResidual">サンプルの量子化ビット数</param>
+        /// <returns>16ビット符号付き整数のPCMサンプル。</returns>
+        private short DecodeSample(Lms lmsFilter, int[] stepSizeTable, int[] indexTable, ref int currentStepIndex, int scale, int quantizedResidual)
         {
             // 予測残差を逆量子化
-            int dequantizedResidual = DequantizeResidual(StepSizeTable, indexTable, ref currentStepIndex, scale, quantizedResidual);
+            int dequantizedResidual = DequantizeResidual(stepSizeTable, indexTable, ref currentStepIndex, scale, quantizedResidual);
 
             // 予測サンプルに逆量子化された予測残差を加算し、出力サンプルを求める。
             int predicted = lmsFilter.Predict();
@@ -93,13 +93,14 @@ namespace LibLpad.Codec
         {
             int scale = bitStream.ReadUInt(BITS_OF_SCALE);
             int bitsPerSample = BitsIDToBitsDepth(bitStream.ReadUInt(BITS_OF_BITS_PER_SAMPLE));
+            int[] stepSizeTable = GetStepSizeTable(bitsPerSample);
             int[] indexTable = GetIndexTable(bitsPerSample);
 
             // サンプルを読み込む。
             for (uint i = 0; i < blockSize; ++i)
             {
                 int quantizedResidual = bitStream.ReadUInt(bitsPerSample);
-                result[i] = DecodeSample(lmsFilter, indexTable, ref currentStepIndex, scale, quantizedResidual);
+                result[i] = DecodeSample(lmsFilter, stepSizeTable, indexTable, ref currentStepIndex, scale, quantizedResidual);
             }
         }
 

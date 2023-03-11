@@ -230,7 +230,7 @@ namespace LibLpad.Codec
         }
 
         /// <summary>
-        /// 指定されたブロックに最適な量子化ビット数を計算する。
+        /// 指定されたブロックに最適な量子化ビット数を、2ビットから5ビットの範囲内で選択する。
         /// </summary>
         /// <param name="block">ブロック</param>
         /// <returns>指定されたブロックに最適な量子化ビット数</returns>
@@ -304,8 +304,9 @@ namespace LibLpad.Codec
                 dstBitsPerSample = ComputeBestBitsPerSample(block, sampleRate);
             }
 
+            int[] stepSizeTable = GetStepSizeTable(dstBitsPerSample);
             int[] indexTable = GetIndexTable(dstBitsPerSample);
-            int scale = ComputeBestScale(lmsFilter, StepSizeTable, indexTable, block, currentStepIndex, status);
+            int scale = ComputeBestScale(lmsFilter, stepSizeTable, indexTable, block, currentStepIndex, status);
 
             // スケールを書き込む。
             bitStream.WriteUInt(scale, BITS_OF_SCALE);
@@ -321,8 +322,8 @@ namespace LibLpad.Codec
 
                 // 予測残差を量子化し、さらに逆量子化して、量子化された予測残差と、逆量子化された予測残差を取得する。
                 int index = currentStepIndex;
-                int quantizedResidual = QuantizeResidual(StepSizeTable, indexTable, ref currentStepIndex, scale, residual);
-                int dequantizedResidual = DequantizeResidual(StepSizeTable, indexTable, index, scale, quantizedResidual);
+                int quantizedResidual = QuantizeResidual(stepSizeTable, indexTable, ref currentStepIndex, scale, residual);
+                int dequantizedResidual = DequantizeResidual(stepSizeTable, indexTable, index, scale, quantizedResidual);
 
                 // 予測サンプルに逆量子化した予測残差を加算して出力サンプルを求め、
                 // 次のサンプルの予測のため、出力サンプルと逆量子化済み予測残差を以て、予測器の更新を行う。

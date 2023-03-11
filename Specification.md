@@ -1,6 +1,7 @@
 # Lms Predictive - Adaptive Differential pulse code modulation (LPAD) SPECIFICATION
 koobar 著  
-最終更新：2023年3月3日  
+バージョン：1.1（対応するコーデックのバージョン：0.3）  
+最終更新：2023年3月12日  
 
 ## はじめに
 昨今、多くの場面で使用される非可逆圧縮コーデックは、[周波数領域](https://ja.wikipedia.org/wiki/%E5%91%A8%E6%B3%A2%E6%95%B0%E9%A0%98%E5%9F%9F)での処理や[心理音響モデル](https://ja.wikipedia.org/wiki/%E9%9F%B3%E9%9F%BF%E5%BF%83%E7%90%86%E5%AD%A6)、特に[聴覚マスキング](https://en.wikipedia.org/wiki/Auditory_masking)に基づいた情報の削減などの手法を駆使し、非常に高い圧縮率と音質を両立している。通常、時間領域の音声信号を周波数領域の信号に変換するために、[離散コサイン変換（DCT）](https://ja.wikipedia.org/wiki/%E9%9B%A2%E6%95%A3%E3%82%B3%E3%82%B5%E3%82%A4%E3%83%B3%E5%A4%89%E6%8F%9B)や、その一種である[修正離散コサイン変換（MDCT）](https://ja.wikipedia.org/wiki/%E4%BF%AE%E6%AD%A3%E9%9B%A2%E6%95%A3%E3%82%B3%E3%82%B5%E3%82%A4%E3%83%B3%E5%A4%89%E6%8F%9B)を用いる。しかし、心理音響モデルや修正離散コサイン変換、さらにはこれに必要となる[窓関数](https://ja.wikipedia.org/wiki/%E7%AA%93%E9%96%A2%E6%95%B0)などの概念は複雑であり、これらの技術を用いて、音楽を聞くに堪える音質で圧縮することのできる程度のコーデックを独自に作成することは困難であると言える。  
@@ -102,20 +103,45 @@ LMSフィルタにより予測されたサンプルと、実際のサンプル�
 予測残差の量子化は、エンコード後の音質を決定するもっとも重要な処理である。LPADでは、予測残差の量子化に2種類のテーブルが使用される。ステップサイズテーブルと、インデックス変化量テーブルである。  
 
 #### ステップサイズテーブル
-ステップサイズテーブルは、1から32767までの値を256段階で非線形的に増加させた値を格納する配列である。ステップサイズテーブルは、次のプログラムにより生成される。  
+ステップサイズテーブルは、1から32767までの値を非線形的に増加させた値を格納する配列である。ステップサイズテーブルの格納ステップ数（配列の要素数）は、エンコード時に指定された1サンプルあたりのビット数により、変更される。LPADでは、1サンプルあたりのビット数が2ビットから6ビットの範囲内である場合、格納ステップ数が256個のステップサイズテーブルを、7ビット以上の場合、格納ステップ数が2048個のステップサイズテーブルを使用する。  
+
+以下に示すプログラムを用いて、格納ステップ数256個、および2048個のステップサイズテーブルを生成することができる。
 ```cs
+
 /// <summary>
-/// ステップサイズテーブルを生成する。
+/// 格納ステップ数が256個のステップサイズテーブルを生成する。
 /// </summary>
 /// <returns></returns>
-private static int[] CreateStepSizeTable()
+private static int[] CreateSmallStepSizeTable()
 {
-    int[] result = new int[256];
+    const double coeff = 0.02954;
+    const int size = 256;
+    int[] result = new int[size];
     result[0] = 1;
 
     for (int i = 1; i < result.Length; ++i)
     {
-        result[i] = (int)(result[i - 1] + ((result[i - 1] * 0.02954) + 1));
+        result[i] = (int)(result[i - 1] + ((result[i - 1] * coeff) + 1));
+        result[i] = Clamp(result[i], 0, 32767);
+    }
+
+    return result;
+}
+
+/// <summary>
+/// 格納ステップ数が2048個のステップサイズテーブルを生成する。
+/// </summary>
+/// <returns></returns>
+private static int[] CreateLargeStepSizeTable()
+{
+    const double coeff = 0.002424;
+    const int size = 2048;
+    int[] result = new int[size];
+    result[0] = 1;
+
+    for (int i = 1; i < result.Length; ++i)
+    {
+        result[i] = (int)(result[i - 1] + ((result[i - 1] * coeff) + 1));
         result[i] = Clamp(result[i], 0, 32767);
     }
 

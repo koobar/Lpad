@@ -9,7 +9,6 @@ namespace LibLpad.Codec
         public const int SCALE_MAX = 15;                            // ブロックのスケールの最大値
         public const int BITS_OF_SCALE = 4;                         // ブロックのスケールを示す値のビット数
         public const int BITS_OF_BITS_PER_SAMPLE = 3;               // ブロックのサンプルの量子化ビット数を示す値のビット数
-
         private static readonly int[] indexTable2Bits = new int[2]
         {
             -1, 3
@@ -33,29 +32,12 @@ namespace LibLpad.Codec
             -7, -6, -5, -4, -3, -2, -1, 0,
             1, 2, 3, 4, 5, 6, 7, 8,
             9, 10, 11, 12, 13, 14, 15, 16
-        };
+        }; 
         private static readonly int[] indexTable7Bits = CreateHighBitsIndexTable(64);
         private static readonly int[] indexTable8Bits = CreateHighBitsIndexTable(128);
-        private static readonly int[] indexTable9Bits = CreateHighBitsIndexTable(256);
-        public static readonly int[] StepSizeTable = CreateStepSizeTable();
-
-        /// <summary>
-        /// ステップサイズテーブルを生成する。
-        /// </summary>
-        /// <returns></returns>
-        private static int[] CreateStepSizeTable()
-        {
-            int[] result = new int[256];
-            result[0] = 1;
-
-            for (int i = 1; i < result.Length; ++i)
-            {
-                result[i] = (int)(result[i - 1] + ((result[i - 1] * 0.02954) + 1));
-                result[i] = MathEx.Clamp(result[i], 0, 32767);
-            }
-
-            return result;
-        }
+        private static readonly int[] indexTable9Bits = CreateHighBitsIndexTable(256); 
+        private static readonly int[] SmallStepSizeTable = CreateSmallStepSizeTable();
+        private static readonly int[] LargeStepSizeTable = CreateLargeStepSizeTable();
 
         /// <summary>
         /// 高ビット用のインデックス変化量テーブルを生成する。
@@ -70,6 +52,46 @@ namespace LibLpad.Codec
             for (int i = 0; i < size; ++i)
             {
                 result[i] = i - k;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 格納ステップ数が256個のステップサイズテーブルを生成する。
+        /// </summary>
+        /// <returns></returns>
+        private static int[] CreateSmallStepSizeTable()
+        {
+            const double coeff = 0.02954;
+            const int size = 256;
+            int[] result = new int[size];
+            result[0] = 1;
+
+            for (int i = 1; i < result.Length; ++i)
+            {
+                result[i] = (int)(result[i - 1] + ((result[i - 1] * coeff) + 1));
+                result[i] = MathEx.Clamp(result[i], 0, 32767);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 格納ステップ数が2048個のステップサイズテーブルを生成する。
+        /// </summary>
+        /// <returns></returns>
+        private static int[] CreateLargeStepSizeTable()
+        {
+            const double coeff = 0.002424;
+            const int size = 2048;
+            int[] result = new int[size];
+            result[0] = 1;
+
+            for (int i = 1; i < result.Length; ++i)
+            {
+                result[i] = (int)(result[i - 1] + ((result[i - 1] * coeff) + 1));
+                result[i] = MathEx.Clamp(result[i], 0, 32767);
             }
 
             return result;
@@ -98,14 +120,39 @@ namespace LibLpad.Codec
         }
 
         /// <summary>
+        /// 指定された量子化ビット数で使用するステップサイズテーブルを返す。
+        /// </summary>
+        /// <param name="bitsPerSample"></param>
+        /// <returns></returns>
+        public static int[] GetStepSizeTable(int bitsPerSample)
+        {
+            switch (bitsPerSample)
+            {
+                case 0:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                    return SmallStepSizeTable;
+                case 7:
+                case 8:
+                case 9:
+                    return LargeStepSizeTable;
+                default:
+                    throw new Exception("Unsupported bits depth.");
+            }
+        }
+
+        /// <summary>
         /// 指定された量子化ビット数のインデックス調整テーブルを取得する。
         /// </summary>
-        /// <param name="bitsPerResidual"></param>
+        /// <param name="bitsPerSample"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static int[] GetIndexTable(int bitsPerResidual)
+        public static int[] GetIndexTable(int bitsPerSample)
         {
-            switch (bitsPerResidual)
+            switch (bitsPerSample)
             {
                 case 2:
                     return indexTable2Bits;
@@ -126,17 +173,6 @@ namespace LibLpad.Codec
                 default:
                     throw new Exception("Unsupported bits depth.");
             }
-        }
-
-        /// <summary>
-        /// 指定された量子化ビット数の調整テーブルのサイズを取得する。
-        /// </summary>
-        /// <param name="bitsPerResidual"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static int GetSizeOfAdjustTable(int bitsPerResidual)
-        {
-            return 2 ^ (bitsPerResidual - 1);
         }
     }
 }

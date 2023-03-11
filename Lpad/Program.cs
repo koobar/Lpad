@@ -1,4 +1,5 @@
-﻿using LibLpad.Streams;
+﻿using LibLpad;
+using LibLpad.Streams;
 using Lpad.Wav;
 using System;
 using System.IO;
@@ -10,6 +11,7 @@ namespace Lpad
     {
         // 非公開定数
         private const string MES_ENTER_TO_STOP = "Press ENTER key to stop.";
+        private const string MES_WARNING_UNSUPPORTED_FORMAT_VER = @"[WARNING] The LPAD version was not a supported version for this decoder.";
 
         static void Main(string[] args)
         {
@@ -81,6 +83,17 @@ namespace Lpad
                 // フォーマット情報の表示
                 PrintFormatInfo(reader);
 
+                if (reader.FormatVersion != CodecInformation.FORMAT_VERSION_ID)
+                {
+                    var defaultColor = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Red;
+
+                    // デコーダでサポートされていないフォーマットのバージョンであったことを表示する。
+                    Console.WriteLine(MES_WARNING_UNSUPPORTED_FORMAT_VER);
+
+                    Console.ForegroundColor = defaultColor;
+                }
+
                 // 後始末
                 wav_encoder.Dispose();
                 reader.Dispose();
@@ -100,6 +113,17 @@ namespace Lpad
 
                 // デコードして得られたPCMサンプルを再生
                 AudioPlayer.PlaySound(reader.ReadSamples(), (uint)reader.SampleRate, 16, (uint)reader.NumChannels);
+
+                if (reader.FormatVersion != CodecInformation.FORMAT_VERSION_ID)
+                {
+                    var defaultColor = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Red;
+
+                    // デコーダでサポートされていないフォーマットのバージョンであったことを表示する。
+                    Console.WriteLine(MES_WARNING_UNSUPPORTED_FORMAT_VER);
+
+                    Console.ForegroundColor = defaultColor;
+                }
 
                 // ENTERキーを待機
                 Console.WriteLine(MES_ENTER_TO_STOP);
@@ -126,13 +150,17 @@ namespace Lpad
             return path;
         }
 
+        /// <summary>
+        /// フォーマット情報を表示する。
+        /// </summary>
+        /// <param name="reader"></param>
         private static void PrintFormatInfo(LpadStreamReader reader)
         {
             Console.WriteLine();
             Console.WriteLine($"[Encoded Audio Format Information]\n" +
                 $"Sample Rate\t:\t{reader.SampleRate}Hz\n" +
                 $"Channels\t:\t{reader.NumChannels}Channels\n" +
-                $"Bits Per Sample\t:\t{(reader.BitsPerSample == 0 ? "Variable" : $"{reader.BitsPerSample}Bits")}");
+                $"Bits Per Sample\t:\t{(reader.BitsPerSample == 0 ? "Variable" : $"{reader.BitsPerSample}Bits")}\n");
 
             Console.WriteLine();
 

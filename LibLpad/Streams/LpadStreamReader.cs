@@ -34,7 +34,7 @@ namespace LibLpad.Streams
         /// <summary>
         /// エンコードに使用されたエンコーダのバージョン
         /// </summary>
-        public byte CodecVersion { private set; get; }
+        public byte EncoderVersion { private set; get; }
 
         /// <summary>
         /// サンプルレート
@@ -83,7 +83,7 @@ namespace LibLpad.Streams
         private void ReadHeader()
         {
             this.FormatVersion = this.InputStream.ReadByte();
-            this.CodecVersion = this.InputStream.ReadByte();
+            this.EncoderVersion = this.InputStream.ReadByte();
             this.SampleRate = this.InputStream.ReadInt32();
             this.NumChannels = this.InputStream.ReadByte();
             this.BitsPerSample = this.InputStream.ReadByte();

@@ -8,8 +8,13 @@ namespace Lpad
     internal class WizardMode
     {
         private static readonly string MESSAGE_LOGO = $@"Lms Predictive - Adaptive Differential pulse code modulation (LPAD)
-Encoder/Decoder command-line tool. ver. {CodecInformation.CodecVersion}.
+Encoder/Decoder command-line tool.
 Copyright (c) 2023 koobar.
+
+Encoder version: {CodecInformation.EncoderVersion}
+Decoder version: {CodecInformation.DecoderVersion}
+Format version : {CodecInformation.FormatVersion}   <- Encoder/Decoder supports only this version.
+
 ================================================================================
 If you need any help, Please select operation number '4' and type '-h'.";
         private const string MESSAGE_SELECT_MODE = @"Please select an operation number.
@@ -69,13 +74,13 @@ If you need any help, Please select operation number '4' and type '-h'.";
             string fileName = Program.ReadFilePath();
             string output = Path.ChangeExtension(fileName, ".lpad");
 
-            // 予測残差の量子化ビット数を尋ねる
+            // 1サンプルあたりのビット数を尋ねる。
             Console.WriteLine(MES_ASL_BITS_PER_SAMPLE);
             Console.Write(MES_PROPMT);
-            int bitsPerResidual = 4;
+            int bitsPerSample = 4;
             if (int.TryParse(Console.ReadLine(), out int b))
             {
-                bitsPerResidual = b;
+                bitsPerSample = b;
             }
             Console.WriteLine();
 
@@ -90,7 +95,7 @@ If you need any help, Please select operation number '4' and type '-h'.";
             Console.WriteLine();
             
             // エンコード
-            Program.Encode(fileName, output, bitsPerResidual, blockSize);
+            Program.Encode(fileName, output, bitsPerSample, blockSize);
         }
 
         /// <summary>

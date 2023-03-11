@@ -56,10 +56,10 @@ namespace LibLpad.Streams
         private void WriteHeader()
         {
             // フォーマットのバージョン
-            this.OutputStream.Write(CodecInformation.FormatVersionId);
+            this.OutputStream.Write(CodecInformation.FORMAT_VERSION_ID);
 
             // エンコーダのバージョン
-            this.OutputStream.Write(CodecInformation.CodecVersionId);
+            this.OutputStream.Write(CodecInformation.ENCODER_VERSION_ID);
 
             // サンプルレート
             this.OutputStream.Write(this.SampleRate);
