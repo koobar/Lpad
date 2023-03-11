@@ -83,6 +83,7 @@ namespace LibLpad.Streams
         private void ReadHeader()
         {
             this.FormatVersion = this.InputStream.ReadByte();
+            this.CodecVersion = this.InputStream.ReadByte();
             this.SampleRate = this.InputStream.ReadInt32();
             this.NumChannels = this.InputStream.ReadByte();
             this.BitsPerSample = this.InputStream.ReadByte();
