@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LibLpad;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -7,7 +8,7 @@ namespace Lpad
     internal class WizardMode
     {
         private static readonly string MESSAGE_LOGO = $@"Lms Predictive - Adaptive Differential pulse code modulation (LPAD)
-Encoder/Decoder command-line tool.
+Encoder/Decoder command-line tool. ver. {CodecInformation.CodecVersion}.
 Copyright (c) 2023 koobar.
 ================================================================================
 If you need any help, Please select operation number '4' and type '-h'.";

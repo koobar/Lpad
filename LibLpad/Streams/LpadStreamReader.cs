@@ -32,6 +32,11 @@ namespace LibLpad.Streams
         public byte FormatVersion { private set; get; }
 
         /// <summary>
+        /// エンコードに使用されたエンコーダのバージョン
+        /// </summary>
+        public byte CodecVersion { private set; get; }
+
+        /// <summary>
         /// サンプルレート
         /// </summary>
         public int SampleRate { private set; get; }
