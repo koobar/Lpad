@@ -6,26 +6,25 @@ namespace LibLpad.Codec
     {
         // 非公開定数
         private const int LMS_TAP = 16;
-        private const double LMS_DIV = 8192.0;
-        private const double LMS_DELTA_COEFF = 0.0025;
-        private const int LMS_COEFF_DELTA_ROUND_DIGITS = 4;
+        private const int LMS_PREDICTED_VAL_SHIFT = 14;
+        private const int LMS_DELTA_SHIFT = 8;
 
         // 非公開フィールド
         private readonly int[] history;
-        private readonly double[] coefficients;
+        private readonly int[] coefficients;
 
         // コンストラクタ
         public Lms()
         {
             this.history = new int[LMS_TAP];
-            this.coefficients = new double[LMS_TAP];
+            this.coefficients = new int[LMS_TAP];
         }
 
         public class LmsStatus
         {
             // 非公開フィールド
             private int[] history;
-            private double[] coefficients;
+            private int[] coefficients;
 
             /// <summary>
             /// 過去サンプル
@@ -41,7 +40,7 @@ namespace LibLpad.Codec
             /// <summary>
             /// 係数
             /// </summary>
-            public double[] Coefficients
+            public int[] Coefficients
             {
                 get
                 {
@@ -62,7 +61,7 @@ namespace LibLpad.Codec
 
                 if (this.coefficients == null || this.coefficients.Length != lms.coefficients.Length)
                 {
-                    this.coefficients = new double[lms.coefficients.Length];
+                    this.coefficients = new int[lms.coefficients.Length];
                 }
 
                 Array.Copy(lms.history, this.history, lms.history.Length);
@@ -89,14 +88,14 @@ namespace LibLpad.Codec
         /// <returns>予測された次のサンプル</returns>
         public int Predict()
         {
-            double predicted = 0;
+            int predicted = 0;
 
             for (int i = 0; i < LMS_TAP; ++i)
             {
                 predicted += this.coefficients[i] * this.history[i];
             }
 
-            return (int)(predicted / LMS_DIV);
+            return predicted >> LMS_PREDICTED_VAL_SHIFT;
         }
 
         /// <summary>
@@ -106,8 +105,7 @@ namespace LibLpad.Codec
         /// <param name="residual">逆量子化された予測残差</param>
         public void Update(int sample, int residual)
         {
-            // Δを計算する。その際、浮動小数点数演算の誤差による影響を考慮し、丸めておく。
-            double delta = Math.Round(residual * LMS_DELTA_COEFF, LMS_COEFF_DELTA_ROUND_DIGITS);
+            int delta = residual >> LMS_DELTA_SHIFT;
 
             // 係数を更新
             for (int i = 0; i < LMS_TAP; ++i)

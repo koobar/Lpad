@@ -5,9 +5,9 @@ namespace LibLpad
     public static class CodecInformation
     {
         // 公開定数
-        public const byte ENCODER_VERSION_ID = 0x03;
-        public const byte DECODER_VERSION_ID = 0x03;
-        public const byte FORMAT_VERSION_ID = 0x03;
+        public const byte ENCODER_VERSION_ID = 0x04;
+        public const byte DECODER_VERSION_ID = 0x04;
+        public const byte FORMAT_VERSION_ID = 0x04;
 
         /// <summary>
         /// エンコーダのバージョン
@@ -16,7 +16,7 @@ namespace LibLpad
         {
             get
             {
-                return new Version(0, 3);
+                return new Version(0, 4);
             }
         }
 
@@ -27,7 +27,7 @@ namespace LibLpad
         {
             get
             {
-                return new Version(0, 3);
+                return new Version(0, 4);
             }
         }
 
@@ -38,7 +38,7 @@ namespace LibLpad
         {
             get
             {
-                return new Version(0, 3);
+                return new Version(0, 4);
             }
         }
     }
