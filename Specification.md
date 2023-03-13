@@ -1,7 +1,7 @@
 # Lms Predictive - Adaptive Differential pulse code modulation (LPAD) SPECIFICATION
 koobar 著  
-バージョン：1.1（対応するコーデックのバージョン：0.3）  
-最終更新：2023年3月12日  
+バージョン：1.2（対応するコーデックのバージョン：0.4）  
+最終更新：2023年3月13日  
 
 ## はじめに
 昨今、多くの場面で使用される非可逆圧縮コーデックは、[周波数領域](https://ja.wikipedia.org/wiki/%E5%91%A8%E6%B3%A2%E6%95%B0%E9%A0%98%E5%9F%9F)での処理や[心理音響モデル](https://ja.wikipedia.org/wiki/%E9%9F%B3%E9%9F%BF%E5%BF%83%E7%90%86%E5%AD%A6)、特に[聴覚マスキング](https://en.wikipedia.org/wiki/Auditory_masking)に基づいた情報の削減などの手法を駆使し、非常に高い圧縮率と音質を両立している。通常、時間領域の音声信号を周波数領域の信号に変換するために、[離散コサイン変換（DCT）](https://ja.wikipedia.org/wiki/%E9%9B%A2%E6%95%A3%E3%82%B3%E3%82%B5%E3%82%A4%E3%83%B3%E5%A4%89%E6%8F%9B)や、その一種である[修正離散コサイン変換（MDCT）](https://ja.wikipedia.org/wiki/%E4%BF%AE%E6%AD%A3%E9%9B%A2%E6%95%A3%E3%82%B3%E3%82%B5%E3%82%A4%E3%83%B3%E5%A4%89%E6%8F%9B)を用いる。しかし、心理音響モデルや修正離散コサイン変換、さらにはこれに必要となる[窓関数](https://ja.wikipedia.org/wiki/%E7%AA%93%E9%96%A2%E6%95%B0)などの概念は複雑であり、これらの技術を用いて、音楽を聞くに堪える音質で圧縮することのできる程度のコーデックを独自に作成することは困難であると言える。  
