@@ -67,7 +67,7 @@ namespace LibLpad.Streams
             // チャンネル数
             this.OutputStream.Write((byte)this.NumChannels);
 
-            // 予測残差の量子化ビット数
+            // サンプルの量子化ビット数
             this.OutputStream.Write((byte)this.BitsPerSample);
 
             // ブロックのサイズ

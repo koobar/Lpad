@@ -105,6 +105,7 @@ namespace LibLpad.Codec
         /// <param name="residual">逆量子化された予測残差</param>
         public void Update(int sample, int residual)
         {
+            // Δを計算する。
             int delta = residual >> LMS_DELTA_SHIFT;
 
             // 係数を更新

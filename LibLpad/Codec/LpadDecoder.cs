@@ -9,12 +9,14 @@ namespace LibLpad.Codec
     {
         // 非公開フィールド
         private readonly BinaryReader InputStream;
+        private readonly int bitsPerSample;
 
         #region コンストラクタ
 
-        public LpadDecoder(BinaryReader stream)
+        public LpadDecoder(BinaryReader stream, int bitsPerSample)
         {
             this.InputStream = stream;
+            this.bitsPerSample = bitsPerSample;
         }
 
         #endregion
@@ -92,7 +94,7 @@ namespace LibLpad.Codec
         private void ReadBlock(BitStream bitStream, Lms lmsFilter, ref int currentStepIndex, int blockSize, short[] result)
         {
             int scale = bitStream.ReadUInt(BITS_OF_SCALE);
-            int bitsPerSample = BitsIDToBitsDepth(bitStream.ReadUInt(BITS_OF_BITS_PER_SAMPLE));
+            int bitsPerSample = this.bitsPerSample == BITS_PER_SAMPLE_VARIABLE ? BitsIDToBitsDepth(bitStream.ReadUInt(BITS_OF_BITS_PER_SAMPLE)) : this.bitsPerSample;
             int[] stepSizeTable = GetStepSizeTable(bitsPerSample);
             int[] indexTable = GetIndexTable(bitsPerSample);
 

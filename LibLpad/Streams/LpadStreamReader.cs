@@ -97,7 +97,7 @@ namespace LibLpad.Streams
         public short[] ReadSamples()
         {
             // デコーダを生成
-            var decoder = new LpadDecoder(this.InputStream);
+            var decoder = new LpadDecoder(this.InputStream, this.BitsPerSample);
             decoder.DecodeWithMultithread = Environment.ProcessorCount >= this.NumChannels;
 
             // デコードして返す。

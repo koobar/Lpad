@@ -299,8 +299,11 @@ namespace LibLpad.Codec
         /// <param name="currentStepIndex"></param>
         private void EncodeBlock(BitStream bitStream, Lms lmsFilter, short[] block, int sampleRate, int dstBitsPerSample, ref int currentStepIndex, Lms.LmsStatus status)
         {
+            bool writeBitsDepthToBlockHeader = false;
+
             if (dstBitsPerSample == BITS_PER_SAMPLE_VARIABLE)
             {
+                writeBitsDepthToBlockHeader = true;
                 dstBitsPerSample = ComputeBestBitsPerSample(block, sampleRate);
             }
 
@@ -311,8 +314,12 @@ namespace LibLpad.Codec
             // スケールを書き込む。
             bitStream.WriteUInt(scale, BITS_OF_SCALE);
 
-            // サンプルの量子化ビット数を書き込む。
-            bitStream.WriteUInt(BitsDepthToBitsID(dstBitsPerSample), BITS_OF_BITS_PER_SAMPLE);
+            // ブロックヘッダにサンプルの量子化ビット数を書き込む必要があるか？
+            if (writeBitsDepthToBlockHeader)
+            {
+                // サンプルの量子化ビット数を書き込む。
+                bitStream.WriteUInt(BitsDepthToBitsID(dstBitsPerSample), BITS_OF_BITS_PER_SAMPLE);
+            }
 
             // ブロックのすべてのサンプルをエンコード
             foreach (var sample in block)
